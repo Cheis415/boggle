@@ -13,7 +13,6 @@ games = {}
 @app.route("/")
 def homepage():
     """Show board."""
-
     return render_template("index.html")
 
 
@@ -25,5 +24,29 @@ def new_game():
     game_id = str(uuid4())
     game = BoggleGame()
     games[game_id] = game
+    return jsonify({"gameId": game_id, "board": game.board})
 
-    return {"gameId": "need-real-id", "board": "need-real-board"}
+
+@app.route("/", methods=["POST"])
+def score_word():
+    """ It should be in the word list. It sound be findable on the board 
+        This route should return a JSON response using Flask’s jsonify function."""
+
+    word = request.json["word"]
+    game_id = request.json["game_id"]
+    validWord = games[game_id].is_word_in_word_list(word)
+    isOnBoard = games[game_id].check_word_on_board(word)
+    if not validWord:
+        return jsonify({"result": "not-word"})
+    elif not isOnBoard:
+        return jsonify({"result": "not-on-board"})
+    else:
+        return jsonify({"result": "ok"})
+
+
+
+
+
+
+
+
